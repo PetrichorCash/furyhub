@@ -4,17 +4,17 @@ info:
   name: ''
   description: ''
 paths:
-  /terra/alliances:
+  /terra/petrichors:
     get:
-      summary: Query paginated alliances
-      operationId: AllianceAllianceAlliances
+      summary: Query paginated petrichors
+      operationId: PetrichorPetrichorPetrichors
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              alliances:
+              petrichors:
                 type: array
                 items:
                   type: object
@@ -28,7 +28,7 @@ paths:
                       type: string
                       title: >-
                         The reward weight specifies the ratio of rewards that
-                        will be given to each alliance asset
+                        will be given to each petrichor asset
 
                         It does not need to sum to 1. rate = weight /
                         total_weight
@@ -38,9 +38,10 @@ paths:
                       type: string
                       title: >-
                         A positive take rate is used for liquid staking
-                        derivatives. It defines an annualized reward rate that
+                        derivatives. It defines an rate that is applied per
+                        take_rate_interval
 
-                        will be redirected to the distribution rewards pool
+                        that will be redirected to the distribution rewards pool
                     total_tokens:
                       type: string
                     total_validator_shares:
@@ -48,7 +49,14 @@ paths:
                     reward_start_time:
                       type: string
                       format: date-time
-                  title: 'key: denom value: AllianceAsset'
+                    reward_change_rate:
+                      type: string
+                    reward_change_interval:
+                      type: string
+                    last_reward_change_time:
+                      type: string
+                      format: date-time
+                  title: 'key: denom value: PetrichorAsset'
               pagination:
                 type: object
                 properties:
@@ -154,10 +162,182 @@ paths:
           type: boolean
       tags:
         - Query
-  /terra/alliances/delegations/{delegator_addr}:
+  /terra/petrichors/delegations:
     get:
-      summary: Query all paginated alliance delegations for a delegator addr
-      operationId: AllianceAllianceAlliancesDelegation
+      summary: Query all paginated petrichor delegations
+      operationId: PetrichorPetrichorAllPetrichorsDelegations
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              delegations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    delegation:
+                      type: object
+                      properties:
+                        delegator_address:
+                          type: string
+                          description: >-
+                            delegator_address is the bech32-encoded address of
+                            the delegator.
+                        validator_address:
+                          type: string
+                          description: >-
+                            validator_address is the bech32-encoded address of
+                            the validator.
+                        denom:
+                          type: string
+                          title: denom of token staked
+                        shares:
+                          type: string
+                          description: shares define the delegation shares received.
+                        reward_history:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              index:
+                                type: string
+                        last_reward_claim_height:
+                          type: string
+                          format: uint64
+                    balance:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  description: >-
+                    DelegationResponse is equivalent to Delegation except that
+                    it contains a
+
+                    balance in addition to shares which is more suitable for
+                    client responses.
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /terra/petrichors/delegations/{delegator_addr}:
+    get:
+      summary: Query all paginated petrichor delegations for a delegator addr
+      operationId: PetrichorPetrichorPetrichorsDelegation
       responses:
         '200':
           description: A successful response.
@@ -330,12 +510,12 @@ paths:
           type: boolean
       tags:
         - Query
-  /terra/alliances/delegations/{delegator_addr}/{validator_addr}:
+  /terra/petrichors/delegations/{delegator_addr}/{validator_addr}:
     get:
       summary: >-
-        Query all paginated alliance delegations for a delegator addr and
+        Query all paginated petrichor delegations for a delegator addr and
         validator_addr
-      operationId: AllianceAllianceAlliancesDelegationByValidator
+      operationId: PetrichorPetrichorPetrichorsDelegationByValidator
       responses:
         '200':
           description: A successful response.
@@ -512,12 +692,12 @@ paths:
           type: boolean
       tags:
         - Query
-  /terra/alliances/delegations/{delegator_addr}/{validator_addr}/ibc/{hash}:
+  /terra/petrichors/delegations/{delegator_addr}/{validator_addr}/ibc/{hash}:
     get:
       summary: >-
-        Query a delegation to an alliance by delegator addr, validator_addr and
+        Query a delegation to an petrichor by delegator addr, validator_addr and
         denom
-      operationId: AllianceAllianceIBCAllianceDelegation
+      operationId: PetrichorPetrichorIBCPetrichorDelegation
       responses:
         '200':
           description: A successful response.
@@ -668,12 +848,12 @@ paths:
           type: boolean
       tags:
         - Query
-  /terra/alliances/delegations/{delegator_addr}/{validator_addr}/{denom}:
+  /terra/petrichors/delegations/{delegator_addr}/{validator_addr}/{denom}:
     get:
       summary: >-
-        Query a delegation to an alliance by delegator addr, validator_addr and
+        Query a delegation to an petrichor by delegator addr, validator_addr and
         denom
-      operationId: AllianceAllianceAllianceDelegation
+      operationId: PetrichorPetrichorPetrichorDelegation
       responses:
         '200':
           description: A successful response.
@@ -824,17 +1004,17 @@ paths:
           type: boolean
       tags:
         - Query
-  /terra/alliances/ibc/{hash}:
+  /terra/petrichors/ibc/{hash}:
     get:
-      summary: Query a specific alliance by ibc hash
-      operationId: AllianceAllianceIBCAlliance
+      summary: Query a specific petrichor by ibc hash
+      operationId: PetrichorPetrichorIBCPetrichor
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              alliance:
+              petrichor:
                 type: object
                 properties:
                   denom:
@@ -846,7 +1026,7 @@ paths:
                     type: string
                     title: >-
                       The reward weight specifies the ratio of rewards that will
-                      be given to each alliance asset
+                      be given to each petrichor asset
 
                       It does not need to sum to 1. rate = weight / total_weight
 
@@ -855,9 +1035,10 @@ paths:
                     type: string
                     title: >-
                       A positive take rate is used for liquid staking
-                      derivatives. It defines an annualized reward rate that
+                      derivatives. It defines an rate that is applied per
+                      take_rate_interval
 
-                      will be redirected to the distribution rewards pool
+                      that will be redirected to the distribution rewards pool
                   total_tokens:
                     type: string
                   total_validator_shares:
@@ -865,7 +1046,14 @@ paths:
                   reward_start_time:
                     type: string
                     format: date-time
-                title: 'key: denom value: AllianceAsset'
+                  reward_change_rate:
+                    type: string
+                  reward_change_interval:
+                    type: string
+                  last_reward_change_time:
+                    type: string
+                    format: date-time
+                title: 'key: denom value: PetrichorAsset'
         default:
           description: An unexpected error response.
           schema:
@@ -891,9 +1079,9 @@ paths:
           type: string
       tags:
         - Query
-  /terra/alliances/params:
+  /terra/petrichors/params:
     get:
-      operationId: AllianceAllianceParams
+      operationId: PetrichorPetrichorParams
       responses:
         '200':
           description: A successful response.
@@ -905,12 +1093,12 @@ paths:
                 properties:
                   reward_delay_time:
                     type: string
-                  reward_claim_interval:
+                  take_rate_claim_interval:
                     type: string
                     title: >-
                       Time interval between consecutive applications of
                       `take_rate`
-                  last_reward_claim_time:
+                  last_take_rate_claim_time:
                     type: string
                     format: date-time
                     title: Last application of `take_rate` on assets
@@ -934,10 +1122,10 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /terra/alliances/rewards/{delegator_addr}/{validator_addr}/ibc/{hash}:
+  /terra/petrichors/rewards/{delegator_addr}/{validator_addr}/ibc/{hash}:
     get:
       summary: Query for rewards by delegator addr, validator_addr and denom
-      operationId: AllianceAllianceIBCAllianceDelegationRewards
+      operationId: PetrichorPetrichorIBCPetrichorDelegationRewards
       responses:
         '200':
           description: A successful response.
@@ -1050,10 +1238,10 @@ paths:
           type: boolean
       tags:
         - Query
-  /terra/alliances/rewards/{delegator_addr}/{validator_addr}/{denom}:
+  /terra/petrichors/rewards/{delegator_addr}/{validator_addr}/{denom}:
     get:
       summary: Query for rewards by delegator addr, validator_addr and denom
-      operationId: AllianceAllianceAllianceDelegationRewards
+      operationId: PetrichorPetrichorPetrichorDelegationRewards
       responses:
         '200':
           description: A successful response.
@@ -1166,17 +1354,284 @@ paths:
           type: boolean
       tags:
         - Query
-  /terra/alliances/{denom}:
+  /terra/petrichors/validators:
     get:
-      summary: Query a specific alliance by denom
-      operationId: AllianceAllianceAlliance
+      summary: Query all paginated petrichor validators
+      operationId: PetrichorPetrichorAllPetrichorValidators
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              alliance:
+              validators:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    validator_addr:
+                      type: string
+                    total_delegation_shares:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          DecCoin defines a token with a denomination and a
+                          decimal amount.
+
+
+                          NOTE: The amount field is an Dec which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                    validator_shares:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          DecCoin defines a token with a denomination and a
+                          decimal amount.
+
+
+                          NOTE: The amount field is an Dec which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                    total_staked:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          DecCoin defines a token with a denomination and a
+                          decimal amount.
+
+
+                          NOTE: The amount field is an Dec which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /terra/petrichors/validators/{validator_addr}:
+    get:
+      summary: Query petrichor validator
+      operationId: PetrichorPetrichorPetrichorValidator
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              validator_addr:
+                type: string
+              total_delegation_shares:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+              validator_shares:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+              total_staked:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: validator_addr
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /terra/petrichors/{denom}:
+    get:
+      summary: Query a specific petrichor by denom
+      operationId: PetrichorPetrichorPetrichor
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              petrichor:
                 type: object
                 properties:
                   denom:
@@ -1188,7 +1643,7 @@ paths:
                     type: string
                     title: >-
                       The reward weight specifies the ratio of rewards that will
-                      be given to each alliance asset
+                      be given to each petrichor asset
 
                       It does not need to sum to 1. rate = weight / total_weight
 
@@ -1197,9 +1652,10 @@ paths:
                     type: string
                     title: >-
                       A positive take rate is used for liquid staking
-                      derivatives. It defines an annualized reward rate that
+                      derivatives. It defines an rate that is applied per
+                      take_rate_interval
 
-                      will be redirected to the distribution rewards pool
+                      that will be redirected to the distribution rewards pool
                   total_tokens:
                     type: string
                   total_validator_shares:
@@ -1207,7 +1663,14 @@ paths:
                   reward_start_time:
                     type: string
                     format: date-time
-                title: 'key: denom value: AllianceAsset'
+                  reward_change_rate:
+                    type: string
+                  reward_change_interval:
+                    type: string
+                  last_reward_change_time:
+                    type: string
+                    format: date-time
+                title: 'key: denom value: PetrichorAsset'
         default:
           description: An unexpected error response.
           schema:
@@ -45538,7 +46001,7 @@ paths:
       tags:
         - Query
 definitions:
-  alliance.alliance.AllianceAsset:
+  petrichor.petrichor.PetrichorAsset:
     type: object
     properties:
       denom:
@@ -45548,7 +46011,7 @@ definitions:
         type: string
         title: >-
           The reward weight specifies the ratio of rewards that will be given to
-          each alliance asset
+          each petrichor asset
 
           It does not need to sum to 1. rate = weight / total_weight
 
@@ -45557,9 +46020,9 @@ definitions:
         type: string
         title: >-
           A positive take rate is used for liquid staking derivatives. It
-          defines an annualized reward rate that
+          defines an rate that is applied per take_rate_interval
 
-          will be redirected to the distribution rewards pool
+          that will be redirected to the distribution rewards pool
       total_tokens:
         type: string
       total_validator_shares:
@@ -45567,8 +46030,15 @@ definitions:
       reward_start_time:
         type: string
         format: date-time
-    title: 'key: denom value: AllianceAsset'
-  alliance.alliance.Delegation:
+      reward_change_rate:
+        type: string
+      reward_change_interval:
+        type: string
+      last_reward_change_time:
+        type: string
+        format: date-time
+    title: 'key: denom value: PetrichorAsset'
+  petrichor.petrichor.Delegation:
     type: object
     properties:
       delegator_address:
@@ -45595,7 +46065,7 @@ definitions:
       last_reward_claim_height:
         type: string
         format: uint64
-  alliance.alliance.DelegationResponse:
+  petrichor.petrichor.DelegationResponse:
     type: object
     properties:
       delegation:
@@ -45640,27 +46110,27 @@ definitions:
     description: |-
       DelegationResponse is equivalent to Delegation except that it contains a
       balance in addition to shares which is more suitable for client responses.
-  alliance.alliance.MsgClaimDelegationRewardsResponse:
+  petrichor.petrichor.MsgClaimDelegationRewardsResponse:
     type: object
-  alliance.alliance.MsgDelegateResponse:
+  petrichor.petrichor.MsgDelegateResponse:
     type: object
-  alliance.alliance.MsgRedelegateResponse:
+  petrichor.petrichor.MsgRedelegateResponse:
     type: object
-  alliance.alliance.MsgUndelegateResponse:
+  petrichor.petrichor.MsgUndelegateResponse:
     type: object
-  alliance.alliance.Params:
+  petrichor.petrichor.Params:
     type: object
     properties:
       reward_delay_time:
         type: string
-      reward_claim_interval:
+      take_rate_claim_interval:
         type: string
         title: Time interval between consecutive applications of `take_rate`
-      last_reward_claim_time:
+      last_take_rate_claim_time:
         type: string
         format: date-time
         title: Last application of `take_rate` on assets
-  alliance.alliance.QueryAllianceDelegationResponse:
+  petrichor.petrichor.QueryPetrichorDelegationResponse:
     type: object
     properties:
       delegation:
@@ -45718,7 +46188,7 @@ definitions:
 
           balance in addition to shares which is more suitable for client
           responses.
-  alliance.alliance.QueryAllianceDelegationRewardsResponse:
+  petrichor.petrichor.QueryPetrichorDelegationRewardsResponse:
     type: object
     properties:
       rewards:
@@ -45735,10 +46205,10 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
-  alliance.alliance.QueryAllianceResponse:
+  petrichor.petrichor.QueryPetrichorResponse:
     type: object
     properties:
-      alliance:
+      petrichor:
         type: object
         properties:
           denom:
@@ -45750,7 +46220,7 @@ definitions:
             type: string
             title: >-
               The reward weight specifies the ratio of rewards that will be
-              given to each alliance asset
+              given to each petrichor asset
 
               It does not need to sum to 1. rate = weight / total_weight
 
@@ -45759,9 +46229,9 @@ definitions:
             type: string
             title: >-
               A positive take rate is used for liquid staking derivatives. It
-              defines an annualized reward rate that
+              defines an rate that is applied per take_rate_interval
 
-              will be redirected to the distribution rewards pool
+              that will be redirected to the distribution rewards pool
           total_tokens:
             type: string
           total_validator_shares:
@@ -45769,8 +46239,152 @@ definitions:
           reward_start_time:
             type: string
             format: date-time
-        title: 'key: denom value: AllianceAsset'
-  alliance.alliance.QueryAlliancesDelegationsResponse:
+          reward_change_rate:
+            type: string
+          reward_change_interval:
+            type: string
+          last_reward_change_time:
+            type: string
+            format: date-time
+        title: 'key: denom value: PetrichorAsset'
+  petrichor.petrichor.QueryPetrichorValidatorResponse:
+    type: object
+    properties:
+      validator_addr:
+        type: string
+      total_delegation_shares:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+      validator_shares:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+      total_staked:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+  petrichor.petrichor.QueryPetrichorValidatorsResponse:
+    type: object
+    properties:
+      validators:
+        type: array
+        items:
+          type: object
+          properties:
+            validator_addr:
+              type: string
+            total_delegation_shares:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  DecCoin defines a token with a denomination and a decimal
+                  amount.
+
+
+                  NOTE: The amount field is an Dec which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            validator_shares:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  DecCoin defines a token with a denomination and a decimal
+                  amount.
+
+
+                  NOTE: The amount field is an Dec which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            total_staked:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  DecCoin defines a token with a denomination and a decimal
+                  amount.
+
+
+                  NOTE: The amount field is an Dec which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  petrichor.petrichor.QueryPetrichorsDelegationsResponse:
     type: object
     properties:
       delegations:
@@ -45856,10 +46470,10 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
-  alliance.alliance.QueryAlliancesResponse:
+  petrichor.petrichor.QueryPetrichorsResponse:
     type: object
     properties:
-      alliances:
+      petrichors:
         type: array
         items:
           type: object
@@ -45873,7 +46487,7 @@ definitions:
               type: string
               title: >-
                 The reward weight specifies the ratio of rewards that will be
-                given to each alliance asset
+                given to each petrichor asset
 
                 It does not need to sum to 1. rate = weight / total_weight
 
@@ -45882,9 +46496,9 @@ definitions:
               type: string
               title: >-
                 A positive take rate is used for liquid staking derivatives. It
-                defines an annualized reward rate that
+                defines an rate that is applied per take_rate_interval
 
-                will be redirected to the distribution rewards pool
+                that will be redirected to the distribution rewards pool
             total_tokens:
               type: string
             total_validator_shares:
@@ -45892,7 +46506,14 @@ definitions:
             reward_start_time:
               type: string
               format: date-time
-          title: 'key: denom value: AllianceAsset'
+            reward_change_rate:
+              type: string
+            reward_change_interval:
+              type: string
+            last_reward_change_time:
+              type: string
+              format: date-time
+          title: 'key: denom value: PetrichorAsset'
       pagination:
         type: object
         properties:
@@ -45919,7 +46540,7 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
-  alliance.alliance.QueryParamsResponse:
+  petrichor.petrichor.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -45927,14 +46548,14 @@ definitions:
         properties:
           reward_delay_time:
             type: string
-          reward_claim_interval:
+          take_rate_claim_interval:
             type: string
             title: Time interval between consecutive applications of `take_rate`
-          last_reward_claim_time:
+          last_take_rate_claim_time:
             type: string
             format: date-time
             title: Last application of `take_rate` on assets
-  alliance.alliance.RewardHistory:
+  petrichor.petrichor.RewardHistory:
     type: object
     properties:
       denom:
@@ -46029,6 +46650,18 @@ definitions:
       Coin defines a token with a denomination and an amount.
 
       NOTE: The amount field is an Int which implements the custom method
+      signatures required by gogoproto.
+  cosmos.base.v1beta1.DecCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      DecCoin defines a token with a denomination and a decimal amount.
+
+      NOTE: The amount field is an Dec which implements the custom method
       signatures required by gogoproto.
   google.protobuf.Any:
     type: object
@@ -54894,18 +55527,6 @@ definitions:
   cosmos.crisis.v1beta1.MsgVerifyInvariantResponse:
     type: object
     description: MsgVerifyInvariantResponse defines the Msg/VerifyInvariant response type.
-  cosmos.base.v1beta1.DecCoin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      DecCoin defines a token with a denomination and a decimal amount.
-
-      NOTE: The amount field is an Dec which implements the custom method
-      signatures required by gogoproto.
   cosmos.distribution.v1beta1.DelegationDelegatorReward:
     type: object
     properties:
