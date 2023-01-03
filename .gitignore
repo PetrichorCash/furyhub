@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 vendor
 .DS_Store
 .idea
@@ -12,3 +13,20 @@ dependency-graph.png
 mytestnet
 buf-stamp
 testnet
+=======
+vue/node_modules
+vue/dist
+release/
+.idea/
+.vscode/
+.DS_Store
+.testnet
+.testnets
+test
+
+flutter
+ts-client
+vue/src/store/generated
+scripts/local/data
+scripts/testnet/data
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201

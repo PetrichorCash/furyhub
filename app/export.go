@@ -2,7 +2,10 @@ package app
 
 import (
 	"encoding/json"
+<<<<<<< HEAD
 	"fmt"
+=======
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 	"log"
 
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -12,6 +15,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+<<<<<<< HEAD
 
 	"github.com/irisnet/irismod/modules/htlc"
 	"github.com/irisnet/irismod/modules/oracle"
@@ -23,6 +27,16 @@ import (
 func (app *PetriApp) ExportAppStateAndValidators(
 	forZeroHeight bool, jailAllowedAddrs []string,
 ) (servertypes.ExportedApp, error) {
+=======
+)
+
+// ExportAppStateAndValidators exports the state of the application for a genesis
+// file.
+func (app *App) ExportAppStateAndValidators(
+	forZeroHeight bool, jailAllowedAddrs []string,
+) (servertypes.ExportedApp, error) {
+
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 
@@ -41,18 +55,32 @@ func (app *PetriApp) ExportAppStateAndValidators(
 	}
 
 	validators, err := staking.WriteValidators(ctx, app.StakingKeeper)
+<<<<<<< HEAD
+=======
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,
 		Height:          height,
 		ConsensusParams: app.BaseApp.GetConsensusParams(ctx),
+<<<<<<< HEAD
 	}, err
+=======
+	}, nil
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 }
 
 // prepare for fresh start at zero height
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //      in favour of export at a block height
+<<<<<<< HEAD
 func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+=======
+func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 	applyAllowedAddrs := false
 
 	// check if there is a allowed address list
@@ -77,13 +105,21 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 
 	// withdraw all validator commission
 	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
+<<<<<<< HEAD
 		_, _ = app.DistrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
+=======
+		_, err := app.DistrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
+		if err != nil {
+			panic(err)
+		}
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 		return false
 	})
 
 	// withdraw all delegator rewards
 	dels := app.StakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
+<<<<<<< HEAD
 		valAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
 		if err != nil {
 			panic(err)
@@ -94,6 +130,12 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 			panic(err)
 		}
 		_, _ = app.DistrKeeper.WithdrawDelegationRewards(ctx, delAddr, valAddr)
+=======
+		_, err := app.DistrKeeper.WithdrawDelegationRewards(ctx, delegation.GetDelegatorAddr(), delegation.GetValidatorAddr())
+		if err != nil {
+			panic(err)
+		}
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 	}
 
 	// clear validator slash events
@@ -114,7 +156,12 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
 		app.DistrKeeper.SetFeePool(ctx, feePool)
 
+<<<<<<< HEAD
 		if err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator()); err != nil {
+=======
+		err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())
+		if err != nil {
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 			panic(err)
 		}
 		return false
@@ -122,6 +169,7 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 
 	// reinitialize all delegations
 	for _, del := range dels {
+<<<<<<< HEAD
 		valAddr, err := sdk.ValAddressFromBech32(del.ValidatorAddress)
 		if err != nil {
 			panic(err)
@@ -136,6 +184,15 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 		if err := app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
 			// never called as AfterDelegationModified always returns nil
 			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
+=======
+		err := app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr())
+		if err != nil {
+			panic(err)
+		}
+		err = app.DistrKeeper.Hooks().AfterDelegationModified(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr())
+		if err != nil {
+			panic(err)
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 		}
 	}
 
@@ -164,12 +221,20 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 
 	// Iterate through validators by power descending, reset bond heights, and
 	// update bond intra-tx counters.
+<<<<<<< HEAD
 	store := ctx.KVStore(app.GetKey(stakingtypes.StoreKey))
+=======
+	store := ctx.KVStore(app.keys[stakingtypes.StoreKey])
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 	iter := sdk.KVStoreReversePrefixIterator(store, stakingtypes.ValidatorsKey)
 	counter := int16(0)
 
 	for ; iter.Valid(); iter.Next() {
+<<<<<<< HEAD
 		addr := sdk.ValAddress(stakingtypes.AddressFromValidatorsKey(iter.Key()))
+=======
+		addr := sdk.ValAddress(iter.Key()[1:])
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 		validator, found := app.StakingKeeper.GetValidator(ctx, addr)
 		if !found {
 			panic("expected validator, not found")
@@ -184,6 +249,7 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 		counter++
 	}
 
+<<<<<<< HEAD
 	if err := iter.Close(); err != nil {
 		app.Logger().Error("error while closing the key-value store reverse prefix iterator: ", err)
 		return
@@ -192,6 +258,12 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 	_, err := app.StakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 	if err != nil {
 		log.Fatal(err)
+=======
+	iter.Close()
+
+	if _, err := app.StakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx); err != nil {
+		panic(err)
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 	}
 
 	/* Handle slashing state. */
@@ -205,6 +277,7 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 			return false
 		},
 	)
+<<<<<<< HEAD
 
 	htlc.PrepForZeroHeightGenesis(ctx, app.HTLCKeeper)
 	random.PrepForZeroHeightGenesis(ctx, app.RandomKeeper)
@@ -217,4 +290,6 @@ func (app *PetriApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs 
 // NOTE: This is solely to be used for testing purposes.
 func (app *PetriApp) ExportGenesis(ctx sdk.Context) map[string]json.RawMessage {
 	return app.mm.ExportGenesis(ctx, app.AppCodec())
+=======
+>>>>>>> 78fd37fb52f5e5350fdce166ceb395895b35d201
 }
