@@ -667,7 +667,11 @@ func New(
 		authtypes.ProtoBaseAccount,
 		maccPerms,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sdk.Bech32MainPrefix,
+=======
+		address.Bech32PrefixAccAddr,
+>>>>>>> d6b39449b465b07920690ecfd91a0275d2a2af37
 	)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
