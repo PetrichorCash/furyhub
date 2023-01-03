@@ -250,7 +250,7 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	)
 }
 
-// createIrisappAndExport creates a new irisapp (optionally at a given height) and exports state.
+// createIrisappAndExport creates a new petriapp (optionally at a given height) and exports state.
 func (ac appCreator) appExport(
 	logger log.Logger,
 	db dbm.DB,
@@ -272,7 +272,7 @@ func (ac appCreator) appExport(
 		loadLatest = true
 	}
 
-	irisApp := app.NewIrisApp(
+	petriApp := app.NewIrisApp(
 		logger,
 		db,
 		traceStore,
@@ -285,10 +285,10 @@ func (ac appCreator) appExport(
 	)
 
 	if height != -1 {
-		if err := irisApp.LoadHeight(height); err != nil {
+		if err := petriApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	}
 
-	return irisApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
+	return petriApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
 }

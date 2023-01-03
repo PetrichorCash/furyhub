@@ -66,7 +66,7 @@ import (
 )
 
 // RegisterUpgradePlan register a handler of upgrade plan
-func (app *IrisApp) RegisterUpgradePlan(cfg module.Configurator) {
+func (app *PetriApp) RegisterUpgradePlan(cfg module.Configurator) {
 	app.RegisterUpgradeHandler(
 		"v1.1", &store.StoreUpgrades{},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {

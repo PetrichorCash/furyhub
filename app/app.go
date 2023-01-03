@@ -154,7 +154,7 @@ import (
 	tibckeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 )
 
-const appName = "IrisApp"
+const appName = "PetriApp"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
@@ -245,14 +245,14 @@ var (
 )
 
 var (
-	_ simapp.App              = (*IrisApp)(nil)
-	_ servertypes.Application = (*IrisApp)(nil)
+	_ simapp.App              = (*PetriApp)(nil)
+	_ servertypes.Application = (*PetriApp)(nil)
 )
 
-// IrisApp extends an ABCI application, but with most of its parameters exported.
+// PetriApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
-type IrisApp struct {
+type PetriApp struct {
 	*baseapp.BaseApp
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
@@ -325,12 +325,12 @@ func init() {
 	sdk.SetCoinDenomRegex(DefaultCoinDenomRegex)
 
 	nativeToken = tokentypes.Token{
-		Symbol:        "iris",
-		Name:          "Irishub staking token",
+		Symbol:        "petri",
+		Name:          "Petrihub staking token",
 		Scale:         6,
-		MinUnit:       "uiris",
-		InitialSupply: 2000000000,
-		MaxSupply:     10000000000,
+		MinUnit:       "upetri",
+		InitialSupply: 48000000000000,
+		MaxSupply:     420000000000000,
 		Mintable:      true,
 		Owner:         sdk.AccAddress(crypto.AddressHash([]byte(tokentypes.ModuleName))).String(),
 	}
@@ -340,7 +340,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".iris")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".petri")
 	owner, err := sdk.AccAddressFromBech32(nativeToken.Owner)
 	if err != nil {
 		panic(err)
@@ -363,7 +363,7 @@ func DefaultCoinDenomRegex() string {
 	return reDnmString
 }
 
-// NewIrisApp returns a reference to an initialized IrisApp.
+// NewIrisApp returns a reference to an initialized PetriApp.
 func NewIrisApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -375,7 +375,7 @@ func NewIrisApp(
 	encodingConfig irisappparams.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) *IrisApp {
+) *PetriApp {
 
 	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
 	appCodec := encodingConfig.Marshaler
@@ -406,7 +406,7 @@ func NewIrisApp(
 		tmos.Exit(err.Error())
 	}
 
-	app := &IrisApp{
+	app := &PetriApp{
 		BaseApp:           bApp,
 		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
@@ -984,20 +984,20 @@ func NewIrisApp(
 }
 
 // Name returns the name of the App
-func (app *IrisApp) Name() string { return app.BaseApp.Name() }
+func (app *PetriApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
-func (app *IrisApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *PetriApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates every end block
-func (app *IrisApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *PetriApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // InitChainer application update at chain initialization
-func (app *IrisApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *PetriApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
@@ -1017,12 +1017,12 @@ func (app *IrisApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 }
 
 // LoadHeight loads a particular height
-func (app *IrisApp) LoadHeight(height int64) error {
+func (app *PetriApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height)
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *IrisApp) ModuleAccountAddrs() map[string]bool {
+func (app *PetriApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
@@ -1033,7 +1033,7 @@ func (app *IrisApp) ModuleAccountAddrs() map[string]bool {
 
 // BlockedModuleAccountAddrs returns all the app's blocked module account
 // addresses.
-func (app *IrisApp) BlockedModuleAccountAddrs() map[string]bool {
+func (app *PetriApp) BlockedModuleAccountAddrs() map[string]bool {
 	modAccAddrs := app.ModuleAccountAddrs()
 
 	// remove module accounts that are ALLOWED to received funds
@@ -1049,59 +1049,59 @@ func (app *IrisApp) BlockedModuleAccountAddrs() map[string]bool {
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *IrisApp) LegacyAmino() *codec.LegacyAmino {
+func (app *PetriApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
-// AppCodec returns IrisApp's app codec.
+// AppCodec returns PetriApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *IrisApp) AppCodec() codec.Codec {
+func (app *PetriApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns IrisApp's InterfaceRegistry
-func (app *IrisApp) InterfaceRegistry() types.InterfaceRegistry {
+// InterfaceRegistry returns PetriApp's InterfaceRegistry
+func (app *PetriApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
 
 // GetKey returns the KVStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *IrisApp) GetKey(storeKey string) *storetypes.KVStoreKey {
+func (app *PetriApp) GetKey(storeKey string) *storetypes.KVStoreKey {
 	return app.keys[storeKey]
 }
 
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *IrisApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
+func (app *PetriApp) GetTKey(storeKey string) *storetypes.TransientStoreKey {
 	return app.tkeys[storeKey]
 }
 
 // GetMemKey returns the MemStoreKey for the provided mem key.
 //
 // NOTE: This is solely used for testing purposes.
-func (app *IrisApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
+func (app *PetriApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *IrisApp) GetSubspace(moduleName string) paramstypes.Subspace {
+func (app *PetriApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *IrisApp) SimulationManager() *module.SimulationManager {
+func (app *PetriApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided API server.
-func (app *IrisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+func (app *PetriApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -1118,12 +1118,12 @@ func (app *IrisApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
-func (app *IrisApp) RegisterTxService(clientCtx client.Context) {
+func (app *PetriApp) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
-func (app *IrisApp) RegisterTendermintService(clientCtx client.Context) {
+func (app *PetriApp) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(
 		clientCtx,
 		app.BaseApp.GRPCQueryRouter(),
@@ -1133,7 +1133,7 @@ func (app *IrisApp) RegisterTendermintService(clientCtx client.Context) {
 }
 
 // RegisterUpgradeHandler implements the upgrade execution logic of the upgrade module
-func (app *IrisApp) RegisterUpgradeHandler(
+func (app *PetriApp) RegisterUpgradeHandler(
 	planName string,
 	upgrades *storetypes.StoreUpgrades,
 	upgradeHandler sdkupgrade.UpgradeHandler,

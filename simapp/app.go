@@ -343,7 +343,7 @@ func DefaultCoinDenomRegex() string {
 	return reDnmString
 }
 
-// NewSimApp returns a reference to an initialized IrisApp.
+// NewSimApp returns a reference to an initialized PetriApp.
 func NewSimApp(
 	logger log.Logger,
 	db dbm.DB,
@@ -908,8 +908,8 @@ func NewSimApp(
 }
 
 // MakeCodecs constructs the *std.Codec and *codec.LegacyAmino instances used by
-// irisapp. It is useful for tests and clients who do not want to construct the
-// full irisapp
+// petriapp. It is useful for tests and clients who do not want to construct the
+// full petriapp
 func MakeCodecs() (codec.Codec, *codec.LegacyAmino) {
 	config := MakeTestEncodingConfig()
 	return config.Codec, config.Amino
@@ -983,7 +983,7 @@ func (app *SimApp) LegacyAmino() *codec.LegacyAmino {
 	return app.legacyAmino
 }
 
-// AppCodec returns IrisApp's app codec.
+// AppCodec returns PetriApp's app codec.
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
@@ -991,7 +991,7 @@ func (app *SimApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns IrisApp's InterfaceRegistry
+// InterfaceRegistry returns PetriApp's InterfaceRegistry
 func (app *SimApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
