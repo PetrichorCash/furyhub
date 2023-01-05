@@ -5,22 +5,22 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 const (
 
 	// Bech32ChainPrefix defines the prefix of this chain
-	Bech32ChainPrefix = "i"
+	Bech32ChainPrefix = "x"
 
 	// PrefixAcc is the prefix for account
-	PrefixAcc = "a"
+	PrefixAcc = "p"
 
 	// PrefixValidator is the prefix for validator keys
-	PrefixValidator = "v"
+	PrefixValidator = "k"
 
 	// PrefixConsensus is the prefix for consensus keys
-	PrefixConsensus = "c"
+	PrefixConsensus = "r"
 
 	// PrefixPublic is the prefix for public
-	PrefixPublic = "p"
+	PrefixPublic = "e"
 
 	// PrefixAddress is the prefix for address
-	PrefixAddress = "a"
+	PrefixAddress = "p"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
 	Bech32PrefixAccAddr = Bech32ChainPrefix + PrefixAcc + PrefixAddress
